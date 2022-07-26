@@ -8,13 +8,20 @@ import (
     // "net/url"
     "io/ioutil"
 	"errors"
+
+	"example/csv_utils"
 )
 
 var binanceURL string = "https://api.binance.com/api/v3/avgPrice?symbol=BTCUAH"
+var emailFile string = "example.csv"
 
 type BinanceResponse struct {
 	Mins  int    `json:"mins"`
 	Price string `json:"price"`
+}
+
+type EmailSubscribeRequest struct {
+	Email string `json:"email"`
 }
 
 type Rate struct {
@@ -24,7 +31,7 @@ type Rate struct {
 func main() {
     router := gin.Default()
     router.GET("/rate", getRate)
-    // router.GET("/albums/:id", getAlbumByID)
+    router.POST("/subscribe", postSubscribe)
     // router.POST("/albums", postAlbums)
 
     router.Run("localhost:12321")
@@ -60,6 +67,24 @@ func getRate(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, "")
 	}
     c.IndentedJSON(http.StatusOK, rate)
+}
+
+func postSubscribe(c *gin.Context) {
+	var newEmail EmailSubscribeRequest
+
+	if err := c.BindJSON(&newEmail); err != nil {
+		c.IndentedJSON(http.StatusConflict, "")
+		return
+	}
+
+	returnValue := csv_utils.WriteEmailRecordToFile(emailFile, newEmail.Email)
+
+	if returnValue != 0{
+		c.IndentedJSON(http.StatusConflict, "")
+		return
+	}
+
+    c.IndentedJSON(http.StatusOK, "")
 }
 
 // // postAlbums adds an album from JSON received in the request body.
