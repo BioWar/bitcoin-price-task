@@ -10,6 +10,7 @@ import (
 	"errors"
 
 	"example/csv_utils"
+	"example/mail_utils"
 )
 
 var binanceURL string = "https://api.binance.com/api/v3/avgPrice?symbol=BTCUAH"
@@ -32,9 +33,9 @@ func main() {
     router := gin.Default()
     router.GET("/rate", getRate)
     router.POST("/subscribe", postSubscribe)
-    // router.POST("/albums", postAlbums)
+    router.POST("/sendEmails", postSendEmails)
 
-    router.Run("localhost:12321")
+    router.Run("0.0.0.0:12321")
 }
 
 
@@ -87,33 +88,17 @@ func postSubscribe(c *gin.Context) {
     c.IndentedJSON(http.StatusOK, "")
 }
 
-// // postAlbums adds an album from JSON received in the request body.
-// func postAlbums(c *gin.Context) {
-//     var newAlbum album
+func postSendEmails(c *gin.Context){
+	emailRecords := csv_utils.ReadCSV(emailFile)
+	rate, err := sendRequestForPrice()
+	if err != nil {
+		return
+	}
 
-//     // Call BindJSON to bind the received JSON to
-//     // newAlbum.
-//     if err := c.BindJSON(&newAlbum); err != nil {
-//         return
-//     }
+	for _, emailRecord := range emailRecords {
+		mail_utils.SendMail(emailRecord.Email, rate)
+		fmt.Println("Email sent to " + emailRecord.Email)
+	}
 
-//     // Add the new album to the slice.
-//     albums = append(albums, newAlbum)
-//     c.IndentedJSON(http.StatusCreated, newAlbum)
-// }
-
-// // getAlbumByID locates the album whose ID value matches the id
-// // parameter sent by the client, then returns that album as a response.
-// func getAlbumByID(c *gin.Context) {
-//     id := c.Param("id")
-
-//     // Loop through the list of albums, looking for
-//     // an album whose ID value matches the parameter.
-//     for _, a := range albums {
-//         if a.ID == id {
-//             c.IndentedJSON(http.StatusOK, a)
-//             return
-//         }
-//     }
-//     c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-// }
+    c.IndentedJSON(http.StatusOK, "")
+}

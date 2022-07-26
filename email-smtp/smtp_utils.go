@@ -10,9 +10,9 @@ import (
 
 var yourDomain string = "my-homework-vorotyntsev.co" 
 
-var partOne string = "c0a1070116e12756a1e912"
-var partTwo string = "399824ec81-835621cf-d"
-var partThree string = "07e8349"
+var partOne string = "xxxx"
+var partTwo string = "xxxx"
+var partThree string = "xxxx"
 var competedK string = partOne + partTwo + partThree
 
 func SendMail(receiver string, price string) int{
