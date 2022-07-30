@@ -1,14 +1,20 @@
-FROM golang:1.17-alpine
+################# First stage #######################
+FROM golang:1.17-alpine as build-stage
 
 RUN apk --no-cache add ca-certificates
-# RUN apk add --no-cache bash
 
-WORKDIR /bitcoin-price-api
+WORKDIR /go/src/github.com/biowar/webserver-bitcoin-price
 
 COPY . .
 
-RUN go build -o /webserver-bitcoin-price .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+################# Second stage #######################
+FROM golang:1.17-alpine as production
+
+COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build-stage /go/src/github.com/biowar/webserver-bitcoin-price .
 
 EXPOSE 12321
 
-CMD ["/webserver-bitcoin-price"]
+CMD ["./main"]
