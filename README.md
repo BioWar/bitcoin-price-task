@@ -6,6 +6,12 @@ Available API:
 - **/subscribe** -- Post request which adds sent "email" to example.csv file. If the email address is already present in the example.csv, 409 error is thrown.
 - **/sendEmails** -- Post request which send the current BTCUAH price to all the subscribers from example.csv file. This method uses Mailgun for the mail delivery service.
 
+Build docker container:
+```
+sudo docker build -t bitcoin-price-api .
+sudo docker run --publish 12321:12321 bitcoin-price-api
+```
+
 Example usage:
 
  - `curl http://localhost:12321/rate`
@@ -15,6 +21,6 @@ Example usage:
 TODO:
  - Save Mailgun key to environmental variable and use it more responsibly, but for tasks unrelated to production standards leave it be.
  - Swap example.csv for a relational database to increase scalability.
- - Decrease Docker container size with the staged build. 
+ - Decrease Docker container size with the staged build. (Done ✔️)
  - Create documentation for the project
  - Add tests.
