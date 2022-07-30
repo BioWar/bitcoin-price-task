@@ -10,7 +10,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 ################# Second stage #######################
-FROM golang:1.17-alpine as production
+FROM scratch
 
 COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build-stage /go/src/github.com/biowar/webserver-bitcoin-price .
